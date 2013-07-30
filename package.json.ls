@@ -1,7 +1,7 @@
 # Updater!
 
 name: 'Laboratory'
-version: '0.1.1'
+version: '0.1.2'
 description: 'development made easy'
 keywords: <[
 	development environment dev cli
@@ -21,7 +21,7 @@ repository:
 	url: 'https://github.com/heavyk/Laboratory.git'
 bugs:
 	url: 'https://github.com/heavyk/Laboratory/issues'
-main: './lib/updater.js'
+main: './lib/laboratory.js'
 dependencies:
 	semver: \x
 	request: \x

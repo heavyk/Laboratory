@@ -1,0 +1,978 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"err",
+				"error"
+			],
+			[
+				"file",
+				"filename_requested"
+			],
+			[
+				"filename",
+				"filename_ver"
+			],
+			[
+				"doc",
+				"document"
+			],
+			[
+				"shw",
+				"showDevTools"
+			],
+			[
+				"lib",
+				"lib_dir"
+			],
+			[
+				"un",
+				"uninitialized"
+			],
+			[
+				"is",
+				"isDirectory"
+			],
+			[
+				"lab",
+				"laboratory"
+			],
+			[
+				"_",
+				"_onEnter"
+			],
+			[
+				"tran",
+				"transition"
+			],
+			[
+				"trans",
+				"transition"
+			],
+			[
+				"pack",
+				"_package_json"
+			],
+			[
+				"mani",
+				"manifest_path"
+			],
+			[
+				"mac",
+				"MachineShop"
+			],
+			[
+				"tot",
+				"total_bytes"
+			],
+			[
+				"Up",
+				"Updaters"
+			],
+			[
+				"pkg",
+				"pkg_json_path"
+			],
+			[
+				"process",
+				"processQueue"
+			],
+			[
+				"L",
+				"LABORATORY_PATH"
+			],
+			[
+				"opt",
+				"opt_basepath"
+			],
+			[
+				"opt_",
+				"opt_callback"
+			],
+			[
+				"ex",
+				"existing"
+			],
+			[
+				"new",
+				"new_pkg"
+			],
+			[
+				"ve",
+				"version"
+			],
+			[
+				"create",
+				"createWriteStream"
+			],
+			[
+				"man",
+				"manifest_path"
+			],
+			[
+				"initi",
+				"initialize"
+			],
+			[
+				"updat",
+				"update_interval"
+			],
+			[
+				"upda",
+				"update_done_cb"
+			],
+			[
+				"UNI",
+				"UNIVERSE"
+			],
+			[
+				"mod",
+				"module_dir"
+			],
+			[
+				"read",
+				"readdir"
+			],
+			[
+				"publi",
+				"publicDir"
+			],
+			[
+				"write",
+				"writeFile"
+			],
+			[
+				"pub",
+				"publicDir"
+			],
+			[
+				"css",
+				"css_files"
+			],
+			[
+				"public",
+				"public-dir"
+			],
+			[
+				"local",
+				"local_file"
+			],
+			[
+				"component",
+				"component-jquery"
+			],
+			[
+				"node",
+				"node_modules"
+			],
+			[
+				"pk",
+				"playbox_pkg"
+			],
+			[
+				"co",
+				"console"
+			],
+			[
+				"ver",
+				"verse_name"
+			],
+			[
+				"nex",
+				"nextTick"
+			],
+			[
+				"his",
+				"historyPath"
+			],
+			[
+				"vers",
+				"verse_conf"
+			],
+			[
+				"verse_conf",
+				"verse_conf_dir"
+			],
+			[
+				"Con",
+				"Confortable"
+			],
+			[
+				"main",
+				"mainHelp"
+			],
+			[
+				"exec",
+				"execCommand"
+			],
+			[
+				"show",
+				"showHelp"
+			],
+			[
+				"prog",
+				"prog_name"
+			],
+			[
+				"Conf",
+				"confortable"
+			],
+			[
+				"def",
+				"default_args"
+			],
+			[
+				"defa",
+				"default_args"
+			],
+			[
+				"comma",
+				"commands"
+			],
+			[
+				"par",
+				"parseRange"
+			],
+			[
+				"desc",
+				"description"
+			],
+			[
+				"defau",
+				"defaults"
+			],
+			[
+				"tr",
+				"transform_fn"
+			],
+			[
+				"tra",
+				"transform"
+			],
+			[
+				"transf",
+				"transform"
+			],
+			[
+				"parse",
+				"parseArgs"
+			],
+			[
+				"for",
+				"forEach"
+			],
+			[
+				"to",
+				"toString"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "src/laboratory.ls",
+			"settings":
+			{
+				"buffer_size": 17325,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "\nFs = require \\fs\nPath = require \\path\n\np$ = require \\procstreams\nIni = require \\ini\nGithub = require \\github\nProgram = require \\commander\nWalk = require \\walkdir\n\n{ _, ToolShed, Fsm, LiveScript, Debug } = MachineShop = require \\MachineShop\n\n# WIP\n# 1. set git ini based on argv\n# 2. integrate it with github\n# 2a. api usage for each user (stored in .Laboratory)\n# 3. make it a verse\n# 4. integrate this deeply with sencillo\n\n# small things:\n# 1. save the prompt responses to a json file (to avoid always asking them again - later, move this over to verse)\n# 2. upgrade `Program.choose` to be nice and colorful like in `n`\n# 3. check for README.md\n# 4. compile package.json.ls\n# --> keep a record of those being watched..\n\n# exec osascript -e \"delay .5\" -e \"tell application \"node-webkit\" to activate\"\n\n_log = console.log\n\necho = ->\n	str = ''\n	_.each &, (s) ->\n		str += if typeof s is \\object then JSON.stringify s else s + ' '\n	console.log str\n\ndebug = Debug 'laboratory'\n\nLAB_PATH = Path.join process.env.HOME, '.Laboratory'\nLAB_CONFIG_PATH = Path.join LAB_PATH, \\config\n\n# INCOMPLETE: save the keys in here too\n# this should be stored in Mongo, I think...\n\n\ntesting_repos = <[\n	Laboratory\n	Archivista\n	Mental\n	Upgrader\n	Blueshift\n	node-sencillo\n	MachineShop\n]>\n\n\nProgram\n	.version \\0.1.0\n	.option '-u, --user', \"github user\"\n	.parse process.argv\n\n\n\n# TODO FOR v0.1.0:\n# 1. read the config file (~/.Laboratory/config/env.json)\n# 2. multiple users (~/.Laboratory/users/{user}/env.json)\n# 3.\n\nexport Laboratory = (opts) ->\n	debug = Debug 'Laboratory'\n\n	unless typeof opts is \\object\n		throw new Error \"Laboratory opts must be an object\"\n\n	user = opts.user\n	console.log \"using user\", user\n	console.log \"github:\", user.github.user\n\n	#unless path = opts.path\n	#	throw new Error \"you gatta provide a path!!!!!\"\n\n	lab = new Fsm 'Laboratory' {\n		#dirs: []\n		prjs: {}\n		initialize: -> echo \"Loading Vulcrum's Lare...\"\n\n		states:\n			uninitialized:\n				_onEnter: ->\n					ToolShed.mkdir LAB_CONFIG_PATH, (err, dir) ->\n						if err => throw err\n						else if typeof dir isnt \\string\n							#ToolShed.Config Path.join LAB_CONFIG_PATH, \"env.json\"\n							lab.transition \\load\n						else\n							lab.transition \\setup\n\n			load:\n				_onEnter: ->\n					unless user\n						echo \"XXX: prompt for the user. grab the zigzags. grab the glock. a mac.\\nsome niggaz be cranked out. some be dranked out. I be danked out.\\nthis is hamsta mutha fuckin nipples .. wit some heat 4 yo azz\"\n						setTimeout ->\n							echo(\"tickedy tacky tack toe, that's some LOLz fo yo motha fuckin ho\")\n						, 5000\n						return setTimeout ->\n							throw new Error \"lol...\"\n						, 8000\n					else\n						echo \"Greetings everyone, '#{user.github.user}' here\"\n						echo \"Welcome to my laboratory...\"\n						lab.path = path = user.path\n						#process.chdir path\n						Fs.watch path, (evt, filename) ->\n							if evt is \\change\n								console.log \"lab disturbance\", &\n							else if evt is \\rename\n								console.log \"there was a \"\n						prj = Walk user.path, max_depth: 1\n						prj.on \\directory (path, st) ->\n							# this should create a Project which is really an extension of Repository\n							# which will in turn, create a src dir, an app.nw, etc.\n							if ~(testing_repos.indexOf Path.basename path)\n								#lab.prjs.push new Project {path: path}\n								new Project {path: path}, {lab: lab}\n\n					/*\n					dir = Walk path, max_depth: 1\n					dir.on \\directory (path, st) ->\n						echo \"d:\", path\n						#Fs.watch path,\n					dir.on \\file (path, st) ->\n						#echo \"f:\", path\n						o = {}\n						f = Path.basename path\n						if ~(ext = f.indexOf '.')\n							Fs.readFile path, 'utf-8', (err, data) ->\n								switch (ext = f.substr ext)\n								| '.json.ls' => LiveScript.compile data, bare: true\n								| '.ls' => LiveScript.compile data, bare: true\n								| '.coffee' => console.log \"XXX: coffeescript not yet implemented\"\n								| '.json.coffee' => console.log \"XXX: coffeescript not yet implemented\"\n					*/\n\n			ready:\n				_onEnter: -> echo \"XXX: TODO ... walk the dirs and shit\"\n\n\n			setup:\n				_onEnter: -> echo \"XXX: TODO ... set this shit up!!\"77\n	}\n\n# things I'd like to add soon:\n# 1. automatic project file conacatenation\n# 1a. self reconfiguration (auto-reload when this file changes)\n# 2. js ast transforms (falafel)\n# 3. ls ast transforms (sweat ast manipulation)\n# 4. npm module resolution (and host recompilation)\n# 5. manifest file creation\n# 6. release / zip file creation, etc.\n# 7. src file based on a URI (for automatic file location resolution!!)\n# 7a. file support (TODO)\n# 7b. http/Request support (TODO)\n# 7c. github support\n# 7d. ssh and other protocols too\n# 8. github hooks for receiving repo changes\n\n# node-webkit interface:\n# 1. tons of stuff, duh!\n\n\nProject = (opts, refs) ->\n	unless opts.path\n		throw new Error \"you need a path for your project\"\n	else if opts.name\n		opts.path = Path.join refs.lab.path, opts.name\n\n	path = opts.path\n	lab = refs.lab\n	src_dir = Path.join path, \\src\n	lib_dir = Path.join path, \\lib\n	dirs = []\n	prj = new Fsm {\n		initialize: -> echo \"new Project!!\"\n		opts: opts\n		states:\n			uninitialized:\n				_onEnter: ->\n					pkg_src_path = Path.join path, \"package.json.ls\"\n					pkg_json_path = Path.join path, \"package.json\"\n					ToolShed.readFile pkg_json_path, 'utf-8', (err, data) ->\n						if err\n							if err.code is \\ENOENT\n								console.log \"TODO: prompt the user for the project name\"\n								pkg_src = Src {\n									path: pkg_src_path\n									output: \"name: 'untitled'\"\n									write: path\n									watch: true\n								}\n							else\n								prj.emit \\error, err\n								prj.transition \\error\n						else\n							try\n								json = JSON.parse data\n							catch e\n								prj.emit \\error, e\n								prj.transition \\error\n							prj.name = json.name\n							# .. get the rest of the data from the package\n							Fs.stat pkg_src_path, (err, st) ->\n								unless err and st.isFile!\n									pkg_src = Src {\n										path: pkg_src_path\n										write: path\n										watch: true\n										st: st\n									}\n									prj.transition \\loaded\n									# it might be useful to provide livescript output `Config` here...\n\n			loaded:\n				_onEnter: ->\n					prj.dirs.push new SrcDir {path: path, into: into_dir}\n					prj.transition \\ready\n\n			ready:\n				_onEnter: ->\n					lab.prjs[prj.name] = prj\n					console.log \"totally ready\"\n\n\n	}\n\n	return prj\n\n\nSrcDir = (opts, refs) ->\n	if typeof opts isnt \\object\n		throw new Error \"SrcDir needs an object\"\n	if typeof opts.path isnt \\string\n		throw new Error \"path must be provided\"\n\n	debug = Debug 'SrcDir'\n	dirs = []\n	srcs = {}\n	dir = new Fsm \"SrcDir(#{Path.relative process.cwd!, opts.path})\" {\n		initialize: -> echo \"loading dir:\", opts.path\n		opts: opts\n		refs: refs\n		states:\n			uninitialized:\n				_onEnter: ->\n					if opts.into\n						ToolShed.mkdir opts.into, (err) ->\n							if err\n								dir.emit \\error new Error \"SrcDir already exists\"\n								dir.transition \\error\n					else opts.into = opts.path\n\n					if opts.st and opts.st.isDirectory!\n						dir.transition \\walk\n					else Fs.stat opts.path, (err, st) ->\n						if err\n							if err.code is \\ENOENT\n								ToolShed.mkdir opts.path, (err) ->\n									dir.emit \\error err\n									dir.transition \\error\n							else\n								dir.emit \\error, err\n								dir.transition \\error\n						else if st.isDirectory!\n							dir.transition \\walk\n						else\n							dir.emit \\error new Error \"SrcDir already exists\"\n							dir.transition \\error\n\n			walk:\n				_onEnter: ->\n					Fs.watch opts.path, (evt, filename) ->\n						if evt is \\change\n							if filename and s = srcs[filename]\n								s.transition \\read\n							else _.each srcs, (s) -> s.transition \\check\n						else if evt is \\rename\n							console.log \"XXX: src file renaming not yet supported!!\"\n						echo \"disturbance\", &\n					d = Walk opts.path, max_depth: 1\n					d.on \\error (err) ->\n						console.log \"we got an error:\", &\n						throw err\n					d.on \\end -> dir.transition \\ready\n					d.on \\file (path, st) ->\n						file = Path.basename path\n						switch ext = Path.extname file\n						#| \\.ls \\.coffee \\.js => srcs.push Src path, st\n						| \\.ls => srcs[file] = Src {path, file, write: opts.into, st, dir}\n					d.on \\directory (path, st) ->\n						console.log \"we have a directory!!\", &\n						dir = Path.basename path\n						into_dir = Path.join opts.into, dir\n						console.log \"rel:\", into_dir\n						dirs.push new SrcDir {path: path, into: into_dir}\n\n			ready:\n				_onEnter: ->\n					dir.emit \\ready\n\n				rescan: ->\n					console.log \"XXX: we should be rescanning now\"\n\n	}\n\n	return dir\n	#d.on \\directory (path, st) ->\n		#echo \"d:\", path\n		#Fs.stat p = Path.join(path, \\src), (err, st) ->\n		#	if not err and st.isDirectory!\n		#		echo \"project:\", path\n		#		d = new SrcDir p, st\n\n\nSrc = (opts) ->\n	if typeof opts is \\string => opts = {path: opts}\n	else if typeof opts is \\object\n		if typeof opts.path isnt \\string\n			throw new Error \"Src must have at least a path\"\n	else throw new Error \"Src not initialized correctly\"\n\n	debug = Debug \"Src(#{Path.relative process.cwd!, opts.path})\"\n\n	outfile = file = Path.basename opts.path\n	opts.lang = switch Path.extname file\n	| \\.ls => \\LiveScript\n	| \\.coffee => \\coffee-script\n	| \\.js => \\js\n	| \\.json => \\json\n\n	if ~(idx_ext = file.indexOf '.')\n		switch (ext = if opts.ext then opts.ext else file.substr idx_ext)\n		| '.json.ls' =>\n			opts.result = true\n			opts.json = true\n			ext = \\.json\n		| otherwise =>\n			ext = ext.replace /(?:(\\.\\w+)?\\.\\w+)?$/, (r, ex) ->\n				if ex is \\.json then opts.json = true\n				return ex or if opts.json then \\.json else \\.js\n\n		outfile = file.substr(0, idx_ext) + ext\n	else if opts.ext\n		outfile = file + opts.ext\n	else\n		throw new Error \"source file does not have an extension\"\n\n	src = new Fsm \"Src(#{Path.relative process.cwd!, opts.path})\" {\n		initialize: -> echo \"initializing src: #{opts.path}\"\n\n		states:\n			uninitialized:\n				_onEnter: ->\n					if typeof opts.st is \\object and opts.st.mtime instanceof Date\n						src.transition if opts.src => \\compile else \\read\n					else Fs.stat opts.path, (err, st) ->\n						if err\n							if err.code is \\ENOENT\n								# IMPROVEMENT: use the user's default template for the file?\n								opts.src = ''\n								now = new Date\n								src.st = {mtime: now, ctime: now}\n								src.transition \\ready\n							else throw err\n						else\n							src.st = st\n							src.transition \\read\n\n			compile:\n				_onEnter: ->\n					try\n						options = {bare: true}\n						opts.tokens = LiveScript.tokens opts.src\n						opts.ast = LiveScript.ast opts.tokens\n						if opts.result => opts.ast.makeReturn!\n						opts.output = opts.ast.compileRoot options\n						if opts.result\n							opts.output = LiveScript.run opts.output, options, true\n\n						if opts.json and not opts.run\n							opts.output = JSON.stringify opts.output, null, '\\t'\n\n						if opts.write\n							Fs.writeFile p = Path.join(opts.write, outfile), opts.output, (err) ->\n								if err\n									src.emit \\error, new Error \"unable to write output to #{p}\"\n									src.transition \\error\n								else\n									debug \"wrote %s\", p\n									src.transition \\ready\n						else\n							src.transition \\ready\n					catch e\n						console.log opts.path, ':', e.message\n						src.emit \\error, e\n						src.transition \\error\n\n			read:\n				_onEnter: ->\n					console.log \"read:\", opts.path\n					Fs.readFile opts.path, 'utf-8', (err, data) ->\n						if err\n							src.transition \\error\n						else if opts.src isnt data\n							opts.src = data\n							src.transition \\compile\n\n			ready:\n				_onEnter: ->\n					if opts.watch and not src.watcher\n						src.watcher = Fs.watchFile file, (evt) ->\n							debug \"file %s changed\", file\n							src.transition \\read\n					src.emit \\ready\n\n	}\n\n	return src\n\n/*\n\nlab = new Fsm {\n	initialize: ->\n		echo \"welcome to my laboratory!\"\n\n	states:\n		uninitialized:\n			_onEnter: ->\n				# ...\n				ToolShed.mkdir LAB_PATH, (res) ->\n					if res instanceof Error\n						lab.emit \\error, \"could not initialize data directory!\"\n						lab.transition \\error\n					else if typeof res is \\string\n						# newly created, initialize the dir\n						lab.transition \\add_user\n					else lab.transition \\load_user\n\n		init_repo:\n			_onEnter: ->\n\n		load_user:\n			_onEnter: ->\n				if lab.user\n					console.log 'TODO:get user data from the data store'\n\n				else\n					#echo \"choose your character\"\n					user_list = Object.keys USERS\n					Program.choose user_list.concat('New character'), (i) ->\n						if i is user_list.length\n							console \"NEW USER!\"\n							console \"INCOMPLETE!!\"\n						else if u = user_list[i]\n							user = USERS[u]\n							echo \"you choose\", i, user\n							# check to see if git is configured in this directory\n							if user.git or user.github or user.gitlab\n								Fs.readFile \"./.git/config\", 'utf-8', (err, data) ->\n									#console.log \"readfile\", &\n									if err\n										if err.code is \\ENOENT\n											# not a git repository\n											Program.confirm \"git repository does not exist. create one?\", (ok) ->\n												if ok\n													echo \"initializing git...\"\n													task = lab.task 'init dir'\n													task.push (done) ->\n														p$ 'git init'\n															.on \\exit, (code) ->\n																if code\n																	emit \\error, err = new Error \"we could not init the git repository for some reason...\"\n																	lab.transition \\error\n																done err\n													#p$ 'touch README.md'\n													task.push (done) ->\n														ToolShed.mkdir './src', done\n													task.push (done) ->\n														ToolShed.mkdir './lib', done\n													#task.push (done) ->\n													#	Updater {}\n													#	Repository {}\n\n												else\n													echo \"ok, no need for a repository then...\"\n									else\n										# read the ini file\n										console.log \"TODO: read the ini file\"\n										lab._git_config = Ini.parse data\n										console.log \"INI\", lab._git_config\n										lab.transition \\check_git_config\n							else\n								@emit \\error \"unidentified user type\"\n								@transition \\error\n\n\n		check_git_config:\n			_onEnter: ->\n				#console.log PACKAGE.git\n				git_config = lab._git_config\n				if typeof git_config is \\object\n					unless _.isEqual gv = user.user, ini.user\n						debug \"different users!\"\n						if typeof gv is \\object\n							ini.user <<< gv\n							console.log \"writing ...\"\n							ToolShed.writeFile Path.join(\".git\", \\config), Ini.stringify ini\n		add_user:\n			_onEnter: ->\n				echo \"create an account\"\n				Program.choose [\n					\"GitHub user\"\n					\"GitLab user\"\n				], (i) ->\n					switch i\n					| 0 \\github =>\n\n					| 1 \\gitlab =>\n}\n\nclass User\n	(manifest) ->\n		console.log \"welcome!\"\n\n*/\n\n\n",
+			"settings":
+			{
+				"buffer_size": 14588,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "test.ls",
+			"settings":
+			{
+				"buffer_size": 497,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/genls.ls",
+			"settings":
+			{
+				"buffer_size": 25259,
+				"line_ending": "Unix",
+				"name": "do (exports = exports ? this.coffee2ls-codegen = {"
+			}
+		},
+		{
+			"file": "package.json",
+			"settings":
+			{
+				"buffer_size": 1153,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "package.json.ls",
+			"settings":
+			{
+				"buffer_size": 1153,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/kenny/Projects/uV/users.json.ls",
+			"settings":
+			{
+				"buffer_size": 707,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "lib/laboratory.js",
+			"settings":
+			{
+				"buffer_size": 20859,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"up",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"pac",
+				"Package Control: Upgrade Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 0.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/kenny/Projects/uV/Laboratory/lib/laboratory.js",
+		"/Users/kenny/Projects/uV/Laboratory/laboratory.sublime-workspace",
+		"/Users/kenny/Projects/uV/users.json",
+		"/Users/kenny/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/kenny/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/kenny/Library/Application Support/Sublime Text 2/Packages/SideBarEnhancements/messages/11.13.2012.1305.0.txt",
+		"/Users/kenny/Projects/uV/Blueshift/___cmd.ls",
+		"/Users/kenny/Projects/uV/MachineShop/package.json",
+		"/Users/kenny/Projects/uV/Blueshift/package.json",
+		"/Users/kenny/Projects/uV/playbox/playbox/package.json",
+		"/Users/kenny/Projects/uV/MachineShop/src/fsm.ls",
+		"/Users/kenny/Projects/uV/node-sencillo/_updater.ls",
+		"/Users/kenny/Projects/uV/MachineShop/node_modules/harmony-reflect/reflect.js",
+		"/Users/kenny/Projects/uV/node-sencillo/app.zip",
+		"/Users/kenny/Projects/uV/MachineShop/lib/toolshed.js",
+		"/tmp/subl stdin OA1NR2.txt",
+		"/Users/kenny/Projects/uV/MachineShop/src/toolshed.ls",
+		"/Users/kenny/Projects/uV/Blueshift/launch.ls",
+		"/Users/kenny/Projects/uV/node-sencillo/package.json",
+		"/Users/kenny/Projects/uV/Upgrader/lib/updater.js",
+		"/Users/kenny/Projects/uV/Laboratory/README.md",
+		"/Users/kenny/Projects/uV/Laboratory/package.json.ls",
+		"/Users/kenny/Projects/uV/Laboratory/.gitignore",
+		"/Users/kenny/Projects/uV/Blueshift/lib/poem.js",
+		"/Users/kenny/Projects/uV/Blueshift/src/model.ls",
+		"/Users/kenny/Projects/uV/Blueshift/lib/loader.js",
+		"/Users/kenny/Projects/uV/Blueshift/build/component.css",
+		"/Users/kenny/Projects/uV/Blueshift/package.json.ls",
+		"/Users/kenny/Projects/uV/playbox/playbox/index.html",
+		"/Users/kenny/Projects/uV/Blueshift/node_modules/woodman/package.json",
+		"/Users/kenny/Projects/uV/Blueshift/node_modules/woodman/README.md",
+		"/Users/kenny/Projects/uV/node-sencillo/node_modules/walkdir/readme.md",
+		"/Users/kenny/Projects/uV/node-sencillo/src/index.js.ls",
+		"/Users/kenny/Projects/uV/Verse/src/events.ls",
+		"/Users/kenny/Projects/uV/Verse/src/worker.js",
+		"/Users/kenny/Projects/uV/MachineShop/src/machineshop.ls",
+		"/Users/kenny/Projects/uV/MachineShop/lib/machineshop.js",
+		"/Users/kenny/Projects/uV/Mental/src/mental.ls",
+		"/Users/kenny/Projects/uV/Archivista/package.json.ls",
+		"/Users/kenny/Projects/uV/ToolShed/src/machineshop.ls",
+		"/Users/kenny/Projects/uV/MachineShop/package.json.ls",
+		"/Users/kenny/Projects/uV/MachineShop/README.md",
+		"/Users/kenny/Projects/uV/ToolShed/src/utils.ls",
+		"/Users/kenny/Projects/uV/ToolShed/package.json",
+		"/Users/kenny/Projects/uV/ToolShed/package.json.ls",
+		"/Users/kenny/Projects/uV/Laboratory/src/laboratory.ls",
+		"/Users/kenny/Projects/uV/Archivista/README.md",
+		"/Users/kenny/Projects/uV/node-sencillo/test_updater.ls",
+		"/Users/kenny/Projects/uV/Updater/examples/npm_module.ls",
+		"/Users/kenny/Projects/uV/Upgrader/examples/npm_module.ls",
+		"/Users/kenny/Projects/uV/Updater/src/updater.ls",
+		"/Users/kenny/Projects/uV/Updater/package.json.ls",
+		"/Users/kenny/Projects/uV/Updater/lib/updater.js",
+		"/Users/kenny/Projects/uV/node-sencillo/TODO.md",
+		"/Users/kenny/Projects/uV/Mental/src/fsm.ls",
+		"/Users/kenny/Projects/uV/Archivista/src/archivista.ls",
+		"/Users/kenny/Projects/uV/Blueshift/index.html",
+		"/Users/kenny/Projects/uV/Blueshift/lib/../src/poem.ls",
+		"/Users/kenny/Projects/uV/node-sencillo/universe.ls",
+		"/Users/kenny/Projects/uV/Blueshift/.gitignore",
+		"/Users/kenny/Projects/uV/Blueshift/_launch.js",
+		"/Users/kenny/Projects/uV/node-sencillo/Archivist.ls",
+		"/Users/kenny/Projects/uV/Blueshift/stylus",
+		"/Users/kenny/Projects/uV/Blueshift/npmd-install",
+		"/Users/kenny/.Updater/registry.npmjs.org/-node-static/manifest.json",
+		"/Users/kenny/Projects/uV/ToolShed/lib/utils.js",
+		"/Users/kenny/Projects/uV/Blueshift/src/../lib/model.ls",
+		"/Users/kenny/Projects/uV/Blueshift/lib/fsm.ls",
+		"/Users/kenny/Projects/uV/node-sencillo/updater.ls",
+		"/Users/kenny/Projects/uV/Updater/node_modules/node-static/package.json",
+		"/Users/kenny/Projects/uV/Updater/.gitignore",
+		"/tmp/subl stdin 8b64JT.txt",
+		"/Users/kenny/Projects/uV/Mental/README.md",
+		"/Users/kenny/Projects/uV/node-sencillo/utils.ls",
+		"/Users/kenny/Projects/uV/node-sencillo/fsm.ls",
+		"/Users/kenny/Projects/uV/Mental/package.json.ls",
+		"/Users/kenny/Projects/uV/Updater/fsm.ls",
+		"/Users/kenny/Projects/uV/Updater/utils.ls",
+		"/Users/kenny/Projects/uV/Updater/laboratory.ls",
+		"/Users/kenny/Projects/uV/Updater/node_modules/procstreams/README.md",
+		"/Users/kenny/Projects/uV/Updater/node_modules/commander/Readme.md",
+		"/Users/kenny/Projects/uV/Updater/node_modules/fibers/README.md",
+		"/Users/kenny/Projects/uV/Updater/Archivist.ls",
+		"/tmp/subl stdin 4wvsgd.txt",
+		"/tmp/subl stdin ViCyD2.txt",
+		"/tmp/subl stdin xFCKga.txt",
+		"/Users/kenny/Projects/uV/playbox/index.js",
+		"/tmp/subl stdin zJQd3t.txt",
+		"/tmp/subl stdin 2Azbh6.txt",
+		"/Users/kenny/Projects/uV/node-sencillo/node_modules/request/index.js",
+		"/Users/kenny/Projects/uV/node-sencillo/node_modules/temp/examples/pdfcreator.js",
+		"/Users/kenny/Projects/uV/node-sencillo/node_modules/temp/lib/temp.js",
+		"/Users/kenny/Projects/uV/node-sencillo/bindings-1.1.0.tgz",
+		"/Users/kenny/Projects/uV/node-sencillo/node_modules/rimraf/README.md",
+		"/Users/kenny/Projects/unhosted-tunes/output.txt",
+		"/Users/kenny/Projects/unhosted-tunes/client.js",
+		"/Users/kenny/Projects/unhosted-tunes/unhostedtunes/.bundle/templates.js",
+		"/Users/kenny/Projects/unhosted-tunes/unhostedtunes/.bundle/index.html",
+		"/Users/kenny/Projects/unhosted-tunes/build/build.css",
+		"/tmp/subl stdin agFHE3.txt",
+		"/tmp/subl stdin ibnt7s.txt",
+		"/Users/kenny/Projects/unhosted-tunes/components/a-x-handlebars/handlebars.runtime.js",
+		"/Users/kenny/Projects/unhosted-tunes/playbox.ls",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/handlebars/bin/handlebars",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/handlebars/package.json",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/handlebars/lib/handlebars.js",
+		"/Users/kenny/Projects/unhosted-tunes/unhostedtunes/lib/lang.js",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/handlebars/README.markdown",
+		"/Users/kenny/Projects/unhosted-tunes/unhostedtunes/main.js",
+		"/Users/kenny/Projects/unhosted-tunes/build/app.manifest",
+		"/Users/kenny/Projects/unhosted-tunes/build/build.js",
+		"/Users/kenny/Projects/unhosted-tunes/component.json",
+		"/Users/kenny/Projects/unhosted-tunes/components/duralog-remotestorage.js/component.json",
+		"/Users/kenny/Projects/unhosted-tunes/public/lib/handlebars.js",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/batch/index.js",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/batch/Readme.md",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/required/index.js",
+		"/Users/kenny/Projects/unhosted-tunes/components/component-jquery/component.json",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/mime/mime.js",
+		"/Users/kenny/Projects/unhosted-tunes/package.json",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/zappa/node_modules/coffeekup/node_modules/coffee-script/lib/coffee-script/sourcemap.js",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/frequire/bin/fbuild",
+		"/Users/kenny/Projects/unhosted-tunes/build/UnhostedTunes.app/Contents/Resources/app.nw/public/index.html",
+		"/Users/kenny/Projects/unhosted-tunes/public/lib/lib.js",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/frequire/frequire.js",
+		"/Users/kenny/Projects/unhosted-tunes/public/package.json",
+		"/Users/kenny/Projects/unhosted-tunes/admin/generate-playbox-bundle.ls",
+		"/Users/kenny/Projects/unhosted-tunes/node_modules/frequire/example/app.js"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"'Identifier'",
+			" then ",
+			"	when",
+			"undefined",
+			".name",
+			"dirs",
+			"srcs",
+			"dirs",
+			"SrcDir",
+			"cwd",
+			"join",
+			"'\n",
+			".user.n",
+			"USER",
+			"prjs",
+			"dirs",
+			"SrcDir ",
+			"src",
+			"__prot",
+			"json",
+			"dep_done",
+			"handle:",
+			"KENNY",
+			"package_json",
+			"install_dep",
+			"Mod",
+			"consol",
+			"npm",
+			" true",
+			"Semver",
+			"dl_a",
+			"create",
+			"node-pro",
+			":::",
+			"node-pr",
+			"global.",
+			"opening node ext:",
+			"Proxy = ",
+			"Fstrea",
+			"gyp_b",
+			"Module",
+			"gyp_b",
+			".sencillo.universes",
+			"\\",
+			"Utils",
+			"MachineShop",
+			"require \\",
+			"Utils",
+			"\\release",
+			"duralog/Updater",
+			".json.l",
+			"watch",
+			"Src ",
+			"window",
+			"Poem",
+			"@@quer",
+			"RUNN",
+			"fsm",
+			"changedAt",
+			"menu_item",
+			"init",
+			"Src(",
+			"coffee-",
+			" SrcD",
+			".write",
+			"o.",
+			"SrcDi",
+			"isSr	",
+			"Directory",
+			"process.cwd!",
+			"Src ",
+			"Dire",
+			"new Fsm",
+			"project:",
+			".wat",
+			"dir",
+			"prj",
+			"user_list",
+			"users",
+			"LABORATORY_PATH",
+			"Utils",
+			"src",
+			"o.path",
+			"watc",
+			"exists",
+			"manifest.j",
+			"statSync",
+			"relative",
+			"Syn",
+			"exists",
+			"updater._package_json",
+			"author",
+			"description",
+			"updater._package_json",
+			"\\release",
+			"{\n",
+			"\\export",
+			"\\release",
+			"manifest.j",
+			"mkdir",
+			"Utils",
+			"ToolShed",
+			"export",
+			"dl_a",
+			"Zip",
+			"Updater",
+			"Updaters",
+			"Semver",
+			"entry",
+			"ERR",
+			"\\entr",
+			"\\up_",
+			"\\up_to",
+			".ver",
+			"read ",
+			"updater._package_json",
+			"not sat",
+			"manifes",
+			"m =",
+			".upda",
+			"Read",
+			"._man",
+			"Rim",
+			"defer",
+			"_manifest",
+			"manifest",
+			"log",
+			"utils."
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"\\n",
+			"",
+			"var argv = program.parse(",
+			"",
+			"optimist"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/laboratory.ls",
+					"settings":
+					{
+						"buffer_size": 17325,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8739,
+								8739
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 5182.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"settings":
+					{
+						"buffer_size": 14588,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14588,
+								14588
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "test.ls",
+					"settings":
+					{
+						"buffer_size": 497,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								497,
+								497
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/genls.ls",
+					"settings":
+					{
+						"buffer_size": 25259,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								860,
+								860
+							]
+						],
+						"settings":
+						{
+							"auto_name": "do (exports = exports ? this.coffee2ls-codegen = {",
+							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 130.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "package.json",
+					"settings":
+					{
+						"buffer_size": 1153,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "package.json.ls",
+					"settings":
+					{
+						"buffer_size": 1153,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								561,
+								561
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 6,
+					"file": "/Users/kenny/Projects/uV/users.json.ls",
+					"settings":
+					{
+						"buffer_size": 707,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								20,
+								20
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "lib/laboratory.js",
+					"settings":
+					{
+						"buffer_size": 20859,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								9535,
+								9535
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 43.0,
+						"translation.y": 4564.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.565171964158,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 118.0
+	},
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"",
+				"/Users/kenny/Projects/uV/Blueshift/blueshift.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 274.0,
+	"status_bar_visible": true
+}
