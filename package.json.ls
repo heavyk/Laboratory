@@ -39,6 +39,7 @@ dependencies:
 	commander: \x # laboratory dep
 	ini: \x # laboratory dep
 	github: \x # laboratory dep
+	livescript: 'git://github.com/gkz/LiveScript.git'
 directories:
 	src: 'src'
 	lib: 'lib'

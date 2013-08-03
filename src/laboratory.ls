@@ -90,6 +90,8 @@ export Laboratory = (opts, refs) ->
 	#	throw new Error "you gatta provide a path!!!!!"
 
 	lab = new Fsm 'Laboratory' {
+		opts: opts
+		refs: refs
 		prjs: []
 		initialize: -> echo "Loading Vulcrum's Lare..."
 
@@ -192,7 +194,6 @@ Project = (opts, refs) ->
 	lib_dir = Path.join path, \lib
 
 	prj = new Fsm {
-		initialize: -> echo "new Project!!"
 		dirs: {}
 		opts: opts
 		states:
@@ -259,7 +260,6 @@ SrcDir = (opts, refs) ->
 
 	debug = Debug 'SrcDir'
 	dir = new Fsm "SrcDir(#{Path.relative process.cwd!, opts.path})" {
-		initialize: -> echo "loading dir:", opts.path
 		dirs: {}
 		srcs: {}
 		opts: opts
@@ -334,7 +334,6 @@ SrcDir = (opts, refs) ->
 							#| \.ls \.coffee \.js => dir.srcs.push Src path, st
 							| \.ls => dir.srcs[file] = Src {path, file, write: opts.into, st, dir}
 					d.on \directory (path, st) ->
-						console.log "we have a directory!!", &
 						dir_name = Path.basename path
 						into_dir = Path.join opts.into, dir_name
 						dir.dirs[dir_name] = new SrcDir {path: path, into: into_dir}
@@ -406,8 +405,6 @@ Src = (opts) ->
 		opts.outfile = Path.join(opts.write, outfile)
 
 	src = new Fsm "Src(#{Path.relative process.cwd!, opts.path})" {
-		initialize: -> echo "initializing src: #{opts.path}"
-
 		states:
 			uninitialized:
 				_onEnter: ->
@@ -484,7 +481,6 @@ Src = (opts) ->
 
 			read:
 				_onEnter: ->
-					console.log "read:", opts.path
 					Fs.readFile opts.path, 'utf-8', (err, data) ->
 						if err
 							src.transition \error
@@ -502,8 +498,9 @@ Src = (opts) ->
 
 			destroy:
 				_onEnter: ->
+					if s = src.watcher then s.close!
 					Fs.unlink opts.outfile, (err) ->
-						if err
+						if err and err.code isnt \ENOENT
 							src.emit \error err
 						src.emit \closed
 
