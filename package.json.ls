@@ -1,6 +1,6 @@
 # Updater!
 
-name: 'Laboratory'
+name: 'laboratory'
 version: '0.1.2'
 description: 'development made easy'
 keywords: <[

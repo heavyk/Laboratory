@@ -12,6 +12,8 @@ LSAst = require \livescript/lib/ast
 
 { _, ToolShed, Fsm, Debug } = MachineShop = require \MachineShop
 
+{ PublicDB, Blueprint } = require Path.join __dirname, \.. \.. \Blueshift \src \db
+
 # WIP
 # 1. set git ini based on argv
 # 2. integrate it with github
@@ -54,6 +56,13 @@ testing_repos = <[
 	node-sencillo
 	MachineShop
 ]>
+
+# XXX: remove me and abstract this... this is for testing only
+# XXX: also change PublicDB -> PublicDB
+db = PublicDB {name: \poem}
+
+# XXX: move this over to sencillo/publicdb
+#export class Doc extends Fsm
 
 
 Program
@@ -137,24 +146,6 @@ export Laboratory = (opts, refs) ->
 						walker.on \end ->
 							lab.transition \ready
 
-					/*
-					dir = Walk path, max_depth: 1
-					dir.on \directory (path, st) ->
-						echo "d:", path
-						#Fs.watch path,
-					dir.on \file (path, st) ->
-						#echo "f:", path
-						o = {}
-						f = Path.basename path
-						if ~(ext = f.indexOf '.')
-							Fs.readFile path, 'utf-8', (err, data) ->
-								switch (ext = f.substr ext)
-								| '.json.ls' => LiveScript.compile data, bare: true
-								| '.ls' => LiveScript.compile data, bare: true
-								| '.coffee' => console.log "XXX: coffeescript not yet implemented"
-								| '.json.coffee' => console.log "XXX: coffeescript not yet implemented"
-					*/
-
 			ready:
 				_onEnter: -> echo "XXX: TODO ... walk the dirs and shit"
 
@@ -162,6 +153,96 @@ export Laboratory = (opts, refs) ->
 			setup:
 				_onEnter: -> echo "XXX: TODO ... set this shit up!!"77
 	}
+#*/
+/*
+export Laboratory = (opts, refs) ->
+	debug = Debug 'Laboratory'
+
+	unless typeof opts is \object
+		throw new Error "Laboratory opts must be an object"
+
+	user = opts.user
+	console.log "using user", user
+	console.log "github:", user.github.user
+
+	#unless path = opts.path
+	#	throw new Error "you gatta provide a path!!!!!"
+
+	lab = new Blueprint {db}, {
+		model: \Laboratory
+		schema:
+			name:
+				type: \string
+				required: true
+			path:
+				type: \string
+				required: true
+			mun:
+				type: \Mun
+				required: true
+				default: ->
+					# XXX: testing for now
+					"5155cd43572b5a715580d060"
+			projects:
+				type: [\Project]
+				default: []
+		fsm:
+			opts: opts
+			refs: refs
+			prjs: []
+			initialize: -> echo "Loading Vulcrum's Lare..."
+
+			states:
+				uninitialized:
+					_onEnter: ->
+						ToolShed.mkdir LAB_CONFIG_PATH, (err, dir) ->
+							if err => throw err
+							else if typeof dir isnt \string
+								#ToolShed.Config Path.join LAB_CONFIG_PATH, "env.json"
+								lab.transition \load
+							else
+								lab.transition \setup
+
+				load:
+					_onEnter: ->
+						unless user
+							echo "XXX: prompt for the user. grab the zigzags. grab the glock. a mac.\nsome niggaz be cranked out. some be dranked out. I be danked out.\nthis is hamsta mutha fuckin nipples .. wit some heat 4 yo azz"
+							setTimeout ->
+								echo("tickedy tacky tack toe, that's some LOLz fo yo motha fuckin ho")
+							, 5000
+							return setTimeout ->
+								throw new Error "lol..."
+							, 8000
+						else
+							echo "Greetings everyone, '#{user.github.user}' here"
+							echo "Welcome to my laboratory..."
+							lab.path = path = user.path
+							#process.chdir path
+							Fs.watch path, (evt, filename) ->
+								console.log "lab disturbance", &
+								if evt is \change
+									console.log "change event", &
+								else if evt is \rename
+									console.log "rename event", &
+							walker = Walk user.path, max_depth: 1
+							walker.on \directory (path, st) ->
+								# this should create a Project which is really an extension of Repository
+								# which will in turn, create a src dir, an app.nw, etc.
+								if ~(testing_repos.indexOf Path.basename path)
+									#lab.prjs.push new Project {path: path}
+									new Project {path: path}, {lab: lab}
+							walker.on \end ->
+								lab.transition \ready
+
+
+				ready:
+					_onEnter: -> echo "XXX: TODO ... walk the dirs and shit"
+
+
+				setup:
+					_onEnter: -> echo "XXX: TODO ... set this shit up!!"77
+	}
+*/
 
 # things I'd like to add soon:
 # 1. automatic project file conacatenation
@@ -181,21 +262,40 @@ export Laboratory = (opts, refs) ->
 # node-webkit interface:
 # 1. tons of stuff, duh!
 
+# current bugs:
+# 1. for some strange reason, one time, it gave me a file rename, when the file already existed or something like that (race condition???)
+# 2.
 
-Project = (opts, refs) ->
+# current improvements:
+# 1. automatically add index.js.ls which with either:
+#  a. put exports for each of the files in src/*.ls
+#  b. if concat is enabled, it'll just concat all src/* files into the resulting index.js
+
+# quick note, I do track the package.json, but it should be dynamically configurable
+# pkg_json.on \change:modules ... add a new module, etc.
+# pkg_json.on \change:name ... change the project name, etc.
+# pkg_json.on \change:version ... make a release, etc.
+# see where I'm going here??
+
+export Project = (opts, refs) ->
 	unless opts.path
 		throw new Error "you need a path for your project"
 	else if opts.name
 		opts.path = Path.join refs.lab.path, opts.name
 
-	path = opts.path
+	refs = {} if typeof refs is \undefined
+
 	lab = refs.lab
+	path = Path.resolve opts.path
+	unless path => throw new Error "invalid path #{opts.path}"
+
 	src_dir = Path.join path, \src
 	lib_dir = Path.join path, \lib
 
 	prj = new Fsm {
 		dirs: {}
 		opts: opts
+		# FUTURE: convert this into a command:
 		states:
 			uninitialized:
 				_onEnter: ->
@@ -236,15 +336,21 @@ Project = (opts, refs) ->
 
 			loaded:
 				_onEnter: ->
-					#prj.dirs.push new SrcDir {path: path, into: into_dir}
-					prj.dirs.src = new SrcDir {path: src_dir, into: lib_dir}
+					src_dir = Path.join path, \src
+					lib_dir = Path.join path, \lib
+					prj.exec \add_dir, \src, src_dir, lib_dir
 					prj.transition \ready
 
 			ready:
 				_onEnter: ->
-					lab.prjs.push prj
-					lab.emit \added, prj
-					console.log "totally ready"
+					if lab
+						lab.prjs.push prj
+						lab.emit \added, prj
+					console.log "project totally ready"
+
+				add_dir: (name, path, into) ->
+					console.log "adding dir"
+					prj.dirs[name] = new SrcDir {path: path, into: into}
 
 
 	}
@@ -252,7 +358,7 @@ Project = (opts, refs) ->
 	return prj
 
 
-SrcDir = (opts, refs) ->
+export SrcDir = (opts, refs) ->
 	if typeof opts isnt \object
 		throw new Error "SrcDir needs an object"
 	if typeof opts.path isnt \string
@@ -368,7 +474,7 @@ SrcDir = (opts, refs) ->
 		#		d = new SrcDir p, st
 
 
-Src = (opts) ->
+export Src = (opts) ->
 	if typeof opts is \string => opts = {path: opts}
 	else if typeof opts is \object
 		if typeof opts.path isnt \string
@@ -491,7 +597,7 @@ Src = (opts) ->
 			ready:
 				_onEnter: ->
 					if opts.watch and not src.watcher
-						src.watcher = Fs.watchFile file, (evt) ->
+						src.watcher = Fs.watchFile opts.path, (evt) ->
 							debug "file %s changed", file
 							src.transition \read
 					src.emit \ready
