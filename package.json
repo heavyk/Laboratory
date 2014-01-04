@@ -1,13 +1,7 @@
 {
-	"name": "Laboratory",
-	"version": "0.1.2",
+	"name": "laboratory",
+	"version": "0.1.3",
 	"description": "development made easy",
-	"keywords": [
-		"development",
-		"environment",
-		"dev",
-		"cli"
-	],
 	"homepage": "https://github.com/heavyk/Laboratory",
 	"author": "flames of love <mechanicofthesequence@gmail.com>",
 	"contributors": [
@@ -16,46 +10,60 @@
 	"maintainers": [
 		"flames of love <mechanicofthesequence@gmail.com>"
 	],
+	"bugs": {
+		"url": "https://github.com/heavyk/Laboratory/issues"
+	},
+	"dependencies": {
+		"archiver": "x",
+		"commander": "x",
+		"debug": "x",
+		"fibers": "x",
+		"fstream": "x",
+		"fstream-ignore": "x",
+		"github": "x",
+		"ini": "x",
+		"livescript": "git://github.com/gkz/LiveScript.git",
+		"lodash": "x",
+		"mkdirp": "x",
+		"request": "x",
+		"rimraf": "x",
+		"semver": "x",
+		"tar": "x",
+		"temp": "x",
+		"walkdir": "x"
+	},
+	"directories": {
+		"example": "examples",
+		"lib": "lib",
+		"src": "src"
+	},
 	"engines": {
 		"node": ">0.8.3"
 	},
+	"keywords": [
+		"development",
+		"environment",
+		"dev",
+		"cli"
+	],
+	"laboratory": {
+		"name": "Laboratory",
+		"srcs": [
+			{
+			"bin/Laboratory.ls": "bin/Laboratory"
+		}
+		]
+	},
+	"main": "./lib/laboratory.js",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/heavyk/Laboratory.git"
 	},
-	"bugs": {
-		"url": "https://github.com/heavyk/Laboratory/issues"
-	},
-	"main": "./lib/laboratory.js",
-	"dependencies": {
-		"semver": "x",
-		"request": "x",
-		"fstream": "x",
-		"fstream-ignore": "x",
-		"tar": "x",
-		"temp": "x",
-		"rimraf": "x",
-		"debug": "x",
-		"lodash": "x",
-		"mkdirp": "x",
-		"fibers": "x",
-		"archiver": "x",
-		"walkdir": "x",
-		"commander": "x",
-		"ini": "x",
-		"github": "x",
-		"livescript": "git://github.com/gkz/LiveScript.git"
-	},
-	"directories": {
-		"src": "src",
-		"lib": "lib",
-		"example": "examples"
-	},
 	"sencillo": {
-		"universe": "facilmente",
 		"creator": {
-			"name": "duralog",
-			"email": "funisher@gmail.com"
-		}
+			"email": "funisher@gmail.com",
+			"name": "duralog"
+		},
+		"universe": "facilmente"
 	}
 }
