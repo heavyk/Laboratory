@@ -11,8 +11,9 @@ LiveScript = require \livescript
 LSAst = require \livescript/lib/ast
 
 { _, ToolShed, Fsm, Debug } = MachineShop = require \MachineShop
+Config = ToolShed.Config
 
-{ PublicDB, Blueprint } = require Path.join __dirname, \.. \.. \Blueshift \src \db
+# { PublicDB, Blueprint } = require Path.join __dirname, \.. \.. \Blueshift \src \db
 
 # WIP
 # 1. set git ini based on argv
@@ -40,26 +41,20 @@ echo = ->
 
 debug = Debug 'laboratory'
 
-LAB_PATH = Path.join process.env.HOME, '.Laboratory'
-LAB_CONFIG_PATH = Path.join LAB_PATH, \config
+process.on \uncaughtException (e) ->
+	debug "uncaught exception %s %s", e, e.stack
+	if e+'' isnt \nothing
+		console.log "ERRROR '#{e+''}'"
+		console.log if e.stack then e.stack else "error: " +e
+		console.log "\n"
+		# TODO: log this to the verse error log
 
 # INCOMPLETE: save the keys in here too
 # this should be stored in Mongo, I think...
 
-# XXX: DELETE ME BEFORE GOING PUBLIC
-testing_repos = <[
-	Laboratory
-	Archivista
-	Mental
-	Upgrader
-	Blueshift
-	node-sencillo
-	MachineShop
-]>
 
 # XXX: remove me and abstract this... this is for testing only
-# XXX: also change PublicDB -> PublicDB
-db = PublicDB {name: \poem}
+#db = PublicDB {name: \poem}
 
 # XXX: move this over to sencillo/publicdb
 #export class Doc extends Fsm
@@ -68,6 +63,7 @@ db = PublicDB {name: \poem}
 Program
 	.version \0.1.0
 	.option '-u, --user', "github user"
+	.option '-p, --project', "skip project selection screen and open a project directly"
 	.parse process.argv
 
 
@@ -81,9 +77,21 @@ Program
 #Schema = mongoose.Schema
 #ObjectId = Schema.Types.ObjectId
 
-#class Laboratory extends Fsm
+# this is just testing for now...
+# soon it'll be integrated into Verse
+Verse = {
+	prompt: (txt, data, fn) ->
+		if typeof data is \function
+			fn = data
+		else if Array.isArray data
+			_.each data, fn
+		else
+			fn data
+		show_prompt = (prompt) ->
+			console.log "#{prompt} PROMPT:", txt, data
+}
 
-
+CWD = process.cwd! #Path.resolve \..
 
 export Laboratory = (opts, refs) ->
 	debug = Debug 'Laboratory'
@@ -91,12 +99,8 @@ export Laboratory = (opts, refs) ->
 	unless typeof opts is \object
 		throw new Error "Laboratory opts must be an object"
 
-	user = opts.user
-	console.log "using user", user
-	console.log "github:", user.github.user
-
-	#unless path = opts.path
-	#	throw new Error "you gatta provide a path!!!!!"
+	#private vars
+	var prj_watcher
 
 	lab = new Fsm 'Laboratory' {
 		opts: opts
@@ -104,145 +108,121 @@ export Laboratory = (opts, refs) ->
 		prjs: []
 		initialize: -> echo "Loading Vulcrum's Lare..."
 
+		eventListeners:
+			user: (user) ->
+
 		states:
 			uninitialized:
 				_onEnter: ->
-					ToolShed.mkdir LAB_CONFIG_PATH, (err, dir) ->
-						if err => throw err
-						else if typeof dir isnt \string
-							#ToolShed.Config Path.join LAB_CONFIG_PATH, "env.json"
-							lab.transition \load
-						else
+					ToolShed.searchDownwardFor 'laboratory.json', (opts.config_path || process.cwd!), (err, path) ->
+						if err
 							lab.transition \setup
+						else
+							cfg = ToolShed.Config path
+							cfg.on \ready (obj) ->
+								lab.CONFIG = obj
+								lab.CONFIG.path = Path.dirname path
+								lab.transition \load
 
 			load:
 				_onEnter: ->
-					unless user
-						echo "XXX: prompt for the user. grab the zigzags. grab the glock. a mac.\nsome niggaz be cranked out. some be dranked out. I be danked out.\nthis is hamsta mutha fuckin nipples .. wit some heat 4 yo azz"
-						setTimeout ->
-							echo("tickedy tacky tack toe, that's some LOLz fo yo motha fuckin ho")
-						, 5000
-						return setTimeout ->
-							throw new Error "lol..."
-						, 8000
-					else
-						echo "Greetings everyone, '#{user.github.user}' here"
-						echo "Welcome to my laboratory..."
-						lab.path = path = user.path
+					task = @task 'loading...'
+					task.push "loading user", (done) ->
+						ask_user = Verse.prompt "user:", (user = opts.user || lab.CONFIG.user), (res) ->
+							if typeof res is \string
+								if typeof (u = lab.CONFIG.users[res])
+									lab.CONFIG.user = res
+									lab.USER = u
+									done!
+								else ask_user "user doesn't exist"
+							else if typeof res is \object
+								#TODO: these should use mongoose/PublicDB model verification
+								# mun = new Mun res
+								if typeof res.name is \string and typeof res.git is \object
+									# we're just gonna assume everything is all verified for now
+									lab.CONFIG.users[res.name] = res
+									done!
+								else "unknown object format or data"
+							else ask_user "unknown input"
+						#echo "XXX: prompt for the user. grab the zigzags. grab the glock. a mac.\nsome niggaz be cranked out. some be dranked out. I be danked out.\nthis is hamsta mutha fuckin nipples .. wit some heat 4 yo azz"
+						#setTimeout ->
+						#	echo("tickedy tacky tack toe, that's some LOLz fo yo motha fuckin ho")
+						#, 5000
+						ask_user "please type your user"
+
+					task.choke "getting lab path" (done) ->
+						dir = opts.path || lab.CONFIG.path || Path.join ToolShed.HOME_DIR, 'Projects'
+						ask_path = Verse.prompt "Laboratory Projects path:", dir, (res) ->
+							if typeof res is \string
+								ToolShed.stat res, (err, st) ->
+									if err
+										if err.code is \ENOENT
+											echo "TODO: ask the user if they want to create the path?"
+											#lab.transition \setup
+									else if st.isDirectory!
+										lab.CONFIG.path = res
+										done!
+									else ask_path "path exists already but isn't a directory"
+							else ask_path "unknown input"
+						#TODO: do a quick check to see if HOME_DIR/Projects exists
+						ask_path "where is your Laboratory located?"
+
+
+					task.end ->
+						console.log "task.end", &
+						path = lab.CONFIG.path
+						debug "using path %s", path
 						#process.chdir path
-						Fs.watch path, (evt, filename) ->
+						prj_watcher := Fs.watch path, (evt, filename) ->
 							console.log "lab disturbance", &
 							if evt is \change
 								console.log "change event", &
 							else if evt is \rename
-								console.log "rename event", &
-						walker = Walk user.path, max_depth: 1
+								#lab.prjs.push new Project {path: path}
+								new_prj_path = Path.join path, filename
+								offset = false
+								_.each lab.prjs, !(prj, i) ->
+									if prj.path is new_prj_path
+										offset := i
+										return false
+								ToolShed.stat new_prj_path, (err, st) ->
+									if offset is false and not err and st.isDirectory!
+										new Project {path: new_prj_path, name: filename}, {lab: lab}
+									else
+										lab.prjs[offset].transition \close
+										lab.prjs.splice offset, 0
+						walker = Walk path, max_depth: 1
 						walker.on \directory (path, st) ->
 							# this should create a Project which is really an extension of Repository
 							# which will in turn, create a src dir, an app.nw, etc.
-							if ~(testing_repos.indexOf Path.basename path)
+							if ~(lab.USER.projects.indexOf Path.basename path)
 								#lab.prjs.push new Project {path: path}
 								new Project {path: path}, {lab: lab}
 						walker.on \end ->
 							lab.transition \ready
 
 			ready:
-				_onEnter: -> echo "XXX: TODO ... walk the dirs and shit"
+				_onEnter: ->
+					@emit \ready
+					echo "XXX: TODO ... walk the dirs and shit"
 
+				switch_user: (user) ->
+					echo "TODO: switch user"
+					prj_watcher.close!
 
 			setup:
 				_onEnter: -> echo "XXX: TODO ... set this shit up!!"77
+
+			close:
+				_onEnter: ->
+					prj_watcher.close!
+					_.each lab.prjs, !(prj, i) ->
+						prj.transition \close
+						lab.prjs[offset].transition \close
+						lab.prjs.splice i, 0
 	}
 #*/
-/*
-export Laboratory = (opts, refs) ->
-	debug = Debug 'Laboratory'
 
-	unless typeof opts is \object
-		throw new Error "Laboratory opts must be an object"
-
-	user = opts.user
-	console.log "using user", user
-	console.log "github:", user.github.user
-
-	#unless path = opts.path
-	#	throw new Error "you gatta provide a path!!!!!"
-
-	lab = new Blueprint {db}, {
-		model: \Laboratory
-		schema:
-			name:
-				type: \string
-				required: true
-			path:
-				type: \string
-				required: true
-			mun:
-				type: \Mun
-				required: true
-				default: ->
-					# XXX: testing for now
-					"5155cd43572b5a715580d060"
-			projects:
-				type: [\Project]
-				default: []
-		fsm:
-			opts: opts
-			refs: refs
-			prjs: []
-			initialize: -> echo "Loading Vulcrum's Lare..."
-
-			states:
-				uninitialized:
-					_onEnter: ->
-						ToolShed.mkdir LAB_CONFIG_PATH, (err, dir) ->
-							if err => throw err
-							else if typeof dir isnt \string
-								#ToolShed.Config Path.join LAB_CONFIG_PATH, "env.json"
-								lab.transition \load
-							else
-								lab.transition \setup
-
-				load:
-					_onEnter: ->
-						unless user
-							echo "XXX: prompt for the user. grab the zigzags. grab the glock. a mac.\nsome niggaz be cranked out. some be dranked out. I be danked out.\nthis is hamsta mutha fuckin nipples .. wit some heat 4 yo azz"
-							setTimeout ->
-								echo("tickedy tacky tack toe, that's some LOLz fo yo motha fuckin ho")
-							, 5000
-							return setTimeout ->
-								throw new Error "lol..."
-							, 8000
-						else
-							echo "Greetings everyone, '#{user.github.user}' here"
-							echo "Welcome to my laboratory..."
-							lab.path = path = user.path
-							#process.chdir path
-							Fs.watch path, (evt, filename) ->
-								console.log "lab disturbance", &
-								if evt is \change
-									console.log "change event", &
-								else if evt is \rename
-									console.log "rename event", &
-							walker = Walk user.path, max_depth: 1
-							walker.on \directory (path, st) ->
-								# this should create a Project which is really an extension of Repository
-								# which will in turn, create a src dir, an app.nw, etc.
-								if ~(testing_repos.indexOf Path.basename path)
-									#lab.prjs.push new Project {path: path}
-									new Project {path: path}, {lab: lab}
-							walker.on \end ->
-								lab.transition \ready
-
-
-				ready:
-					_onEnter: -> echo "XXX: TODO ... walk the dirs and shit"
-
-
-				setup:
-					_onEnter: -> echo "XXX: TODO ... set this shit up!!"77
-	}
-*/
 
 # things I'd like to add soon:
 # 1. automatic project file conacatenation
@@ -292,7 +272,8 @@ export Project = (opts, refs) ->
 	src_dir = Path.join path, \src
 	lib_dir = Path.join path, \lib
 
-	prj = new Fsm {
+	prj = new Fsm "Project(#{opts.name})" {
+		path: path
 		dirs: {}
 		opts: opts
 		# FUTURE: convert this into a command:
@@ -301,16 +282,22 @@ export Project = (opts, refs) ->
 				_onEnter: ->
 					pkg_src_path = Path.join path, "package.json.ls"
 					pkg_json_path = Path.join path, "package.json"
+					pkg = prj.PACKAGE = Config pkg_json_path
+					pkg.once \new ->
+						pkg.name = opts.name or Path.basename path
+						pkg.version = '0.0.1'
+
+					pkg.once \ready (obj, is_new) ->
+						prj.PACKAGE = obj
+						prj.transition \loaded
+
+						if pkg.state is \new then prj.transition \
+					/*
 					ToolShed.readFile pkg_json_path, 'utf-8', (err, data) ->
 						if err
 							if err.code is \ENOENT
 								console.log "TODO: prompt the user for the project name"
-								pkg_src = Src {
-									path: pkg_src_path
-									output: "name: 'untitled'"
-									write: path
-									watch: true
-								}
+								prj.transition \new
 							else
 								prj.emit \error, err
 								prj.transition \error
@@ -319,7 +306,6 @@ export Project = (opts, refs) ->
 								json = JSON.parse data
 								prj.name = json.name
 								# .. get the rest of the data from the package
-
 							catch e
 								prj.emit \error, e
 								prj.transition \error
@@ -333,7 +319,7 @@ export Project = (opts, refs) ->
 									}
 									prj.transition \loaded
 									# it might be useful to provide livescript output `Config` here...
-
+					*/
 			loaded:
 				_onEnter: ->
 					src_dir = Path.join path, \src
@@ -343,18 +329,29 @@ export Project = (opts, refs) ->
 
 			ready:
 				_onEnter: ->
-					if lab
-						lab.prjs.push prj
-						lab.emit \added, prj
 					console.log "project totally ready"
 
 				add_dir: (name, path, into) ->
 					console.log "adding dir"
 					prj.dirs[name] = new SrcDir {path: path, into: into}
 
+			new:
+				_onEnter: ->
+					/*
+					pkg_src = Src {
+						path: pkg_src_path
+						output: "name: 'untitled'"
+						write: path
+						watch: true
+					}
+					*/
+					pkg.name = opts.name or Path.basename path
+					pkg.version = '0.0.1'
 
 	}
 
+	lab.prjs.push prj
+	lab.emit \added, prj
 	return prj
 
 
@@ -404,7 +401,8 @@ export SrcDir = (opts, refs) ->
 						if evt is \change
 							if filename and s = dir.srcs[filename]
 								s.transition \read
-							else _.each dir.srcs, (s) -> s.transition \check
+							else _.each dir.srcs, (s) ->
+								s.transition \check
 						else if evt is \rename
 							console.log "XXX: src file renaming not yet supported!!", &
 							unless filename
@@ -502,6 +500,8 @@ export Src = (opts) ->
 					if ex is \.json then opts.json = true
 					return ex or if opts.json then \.json else \.js
 
+			if ext isnt \.js
+				opts.result = true
 			outfile = file.substr(0, idx_ext) + ext
 		else if opts.ext
 			outfile = file + opts.ext
@@ -565,9 +565,11 @@ export Src = (opts) ->
 						if opts.result => opts.ast.makeReturn!
 						opts.output = opts.ast.compileRoot options
 						if opts.result
+							process.chdir Path.dirname opts.path
 							opts.output = LiveScript.run opts.output, options, true
+							process.chdir CWD
 
-						if opts.json and not opts.run
+						if opts.json
 							opts.output = JSON.stringify opts.output, null, '\t'
 
 						if opts.write
@@ -581,7 +583,7 @@ export Src = (opts) ->
 						else
 							src.transition \ready
 					catch e
-						console.log opts.path, ':', e.message
+						console.log opts.path, ':', e.stack
 						src.emit \error, e
 						src.transition \error
 
@@ -593,6 +595,15 @@ export Src = (opts) ->
 						else if opts.src isnt data or true
 							opts.src = data
 							src.transition \compile
+
+			check:
+				_onEnter: ->
+					console.log "what are we checking???"
+					try
+						throw new Error "..."
+					catch e
+						console.log e.stack
+					@transition \ready
 
 			ready:
 				_onEnter: ->

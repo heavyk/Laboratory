@@ -1,7 +1,5 @@
-# Updater!
-
 name: 'laboratory'
-version: '0.1.2'
+version: '0.1.3'
 description: 'development made easy'
 keywords: <[
 	development environment dev cli
@@ -55,3 +53,8 @@ sencillo:
 #	repository:
 #		type: \git
 #		url: 'git://github.com/heavyk/Laboratory.git'
+laboratory:
+	name: 'Laboratory'
+	srcs: [
+		'bin/Laboratory.ls': 'bin/Laboratory'
+	]
