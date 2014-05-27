@@ -64,7 +64,7 @@ process.on \uncaughtException (e) ->
 #db = PublicDB {name: \poem}
 
 # XXX: move this over to sencillo/publicdb
-#export class Doc extends Fsm
+#class Doc extends Fsm
 
 # this is just testing for now...
 # soon it'll be integrated into Verse
@@ -82,8 +82,8 @@ Verse = {
 
 CWD = process.cwd! #Path.resolve \..
 
-export class Laboratory extends Fsm
-	(@opts, @refs) ~>
+class Laboratory extends Fsm
+	(@refs, @opts) ~>
 		unless typeof opts is \object
 			throw new Error "Laboratory opts must be an object"
 
@@ -115,7 +115,6 @@ export class Laboratory extends Fsm
 			onenter: ->
 				task = @task 'loading...'
 				task.push "loading user", (done) ->
-					assert this instanceof Laboratory
 					console.log "user:", user = @opts.user, @CONFIG.user
 					ask_user = Verse.prompt "user:", (user = @opts.user || @CONFIG.user), (res) ~>
 						assert this instanceof Laboratory
@@ -204,9 +203,11 @@ export class Laboratory extends Fsm
 				prj_watcher.close!
 
 			add_project: (name, path) ->
-				# console.log "add project #name - #path"
-				@prjs.push prj = new Project {name, path}, {lab: @}
-				# prj.once_initialized ~>
+				@debug "add project #name - #path"
+				@prjs.push prj = new Project {lab: @}, {
+					name
+					path
+				}
 				prj.until \ready ~>
 					# console.log "------------------------prj.once_initialized", prj.namespace
 					# console.log "lab.eventListeners",
@@ -261,8 +262,9 @@ export class Laboratory extends Fsm
 # pkg_json.on \change:version ... make a release, etc.
 # see where I'm going here??
 
-export class Project extends Fsm
-	(@opts, @refs) ->
+class Project extends Fsm
+	(@refs, @opts) ->
+		assert refs.lab instanceof Laboratory
 		if typeof opts isnt \object
 			throw new Error "you must pass an options object {name: '...', path: '...'}"
 		unless opts.path
@@ -303,25 +305,35 @@ export class Project extends Fsm
 				pkg_src_path = Path.join @path, "package.json.ls"
 				pkg_json_path = Path.join @path, "package.json"
 				pkg = @PACKAGE = Config pkg_json_path
-				# pkg.once \new ->
 
 				pkg.once \ready (config, data) ~>
 					unless data
 						pkg.name = @name or Path.basename @path
 						pkg.version = '0.0.1'
 
-					src_dir = Path.join @path, \src
-					lib_dir = Path.join @path, \lib
-					@exec \add_dir, \src, src_dir, lib_dir
+					if sencillo = pkg.sencillo
+						if sencillo.srcdirs
+							for k, sdir of sencillo.srcdirs
+								@exec \add_dir, k, sdir.into, sdir
+					else
+						src_dir = Path.join @path, \src
+						lib_dir = Path.join @path, \lib
+						@exec \add_dir, \src, src_dir, lib_dir
 					@transition \ready
 
 		ready:
 			onenter: ->
 				@emit \ready
 
-			add_dir: (name, path, into) ->
+			add_dir: (name, path, into, opts) ->
+				essential_opts = {path: path, into: into}
 				# console.log "add dir #name - #path -> #into"
-				@dirs[name] = src_dir = new SrcDir {path: path, into: into}, {prj: @}
+				@dirs[name] = src_dir = new SrcDir {prj: @}, (
+					if typeof opts is \object
+						essential_opts <<< opts
+					else
+						essential_opts
+				)
 				src_dir.once_initialized ~>
 					# console.log "once_initialized SrcDir", @namespace
 					# console.log "eventListeners", @eventListeners
@@ -342,8 +354,9 @@ export class Project extends Fsm
 				pkg.version = '0.0.1'
 
 
-export class SrcDir extends Fsm
-	(@opts, @refs) ->
+class SrcDir extends Fsm
+	(@refs, @opts) ->
+		assert refs.prj instanceof Project
 		if typeof opts isnt \object
 			throw new Error "SrcDir needs an object"
 		if typeof opts.path isnt \string
@@ -446,7 +459,12 @@ export class SrcDir extends Fsm
 				# console.log "add src #name - #path -> #into"
 				if @dirs[name]
 					throw new Error "dir: #{name} already exists"
-				@srcs[name] = src = new Src {path, file: name, write: into, st}, {prj: @refs.prj, dir: @}
+				@srcs[name] = src = new Src {prj: @refs.prj, dir: @}, {
+					path
+					file: name
+					write: into
+					st
+				}
 				src.once_initialized ~>
 					assert this instanceof SrcDir
 					# console.log "once_initialized Src", @namespace
@@ -457,7 +475,11 @@ export class SrcDir extends Fsm
 				# console.log "add dir #name - #path -> #into"
 				if @dirs[name]
 					throw new Error "dir: #{name} already exists"
-				@dirs[name] = src_dir = new SrcDir {name, path, into}, {prj: @refs.prj, dir: @}
+				@dirs[name] = src_dir = new SrcDir {prj: @refs.prj, dir: @}, {
+					name
+					path
+					into
+				}
 				src_dir.once_initialized ~>
 					assert this instanceof SrcDir
 					# console.log "once_initialized SrcDir ...", @namespace
@@ -476,8 +498,10 @@ export class SrcDir extends Fsm
 				@emit \closed
 
 
-export class Src extends Fsm
-	(@opts, @refs) ->
+class Src extends Fsm
+	(@refs, @opts) ->
+		assert refs.prj instanceof Project
+		assert refs.dir instanceof SrcDir
 		if typeof opts is \string => opts = {path: opts}
 		else if typeof opts is \object
 			if typeof @opts.path isnt \string
@@ -757,5 +781,8 @@ class User
 		console.log "welcome!"
 
 */
-
+export Laboratory
+export Project
+export SrcDir
+export Src
 

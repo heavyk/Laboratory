@@ -1,6 +1,6 @@
 {
 	"name": "laboratory",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "development made easy",
 	"homepage": "https://github.com/heavyk/Laboratory",
 	"author": "flames of love <mechanicofthesequence@gmail.com>",
@@ -14,10 +14,10 @@
 		"url": "https://github.com/heavyk/Laboratory/issues"
 	},
 	"dependencies": {
-		"growl": "^1.7.0",
-		"walkdir": "0.0.x",
 		"LiveScript": "git://github.com/gkz/LiveScript.git",
-		"MachineShop": "git://github.com/duralog/MachineShop.git"
+		"MachineShop": "git://github.com/heavyk/MachineShop.git",
+		"growl": "^1.7.0",
+		"walkdir": "0.0.x"
 	},
 	"directories": {
 		"example": "examples",
@@ -41,7 +41,7 @@
 		}
 		]
 	},
-	"main": "./lib/laboratory.js",
+	"main": "./loader",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/heavyk/Laboratory.git"
@@ -51,6 +51,7 @@
 			"name": "duralog",
 			"email": "funisher@gmail.com"
 		},
+		"main": "laboratory",
 		"universe": "facilmente"
 	}
 }
